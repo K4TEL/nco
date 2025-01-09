@@ -96,7 +96,7 @@ def solve_tsp_by_aco(data_file, solution_file, ac=10, gen=100, alpha=1.0, beta=1
     path_start = path.index(1)
     path = path[path_start:] + path[:path_start]
 
-    print('Cost: {} / {} \tpath: {}'.format(cost, sol_cost, path))
+    print('Cost: {} / {} \tpath: {}'.format(int(cost), sol_cost, path))
     # print('Opt: {}, \tpath: {}'.format(sol_cost, solution))
     # plot(coords, path, solution)
 
@@ -112,6 +112,8 @@ solution_2 = tsplib95.load(sol_2).tours[0]
 
 sol_cost_1, sol_cost_2 = 0, 0
 
+best_c1, best_c2 = 1000000, 1000000
+
 for ac in ant_cnt:
     for ge in gener:
         for al in a:
@@ -119,9 +121,9 @@ for ac in ant_cnt:
                 for ro in r:
                     for q in qs:
                         for st in strateg:
-                            total_c1, best_c1 = 0, 1000000
-                            total_c2, best_c2 = 0, 1000000
-                            print(f"Ants: {ac}\t Generations: {ge}\t Alpha: {al}\t Beta: {be}\t Rho: {ro}\t Q: {q}\t Strategy: {st}")
+                            total_c1 = 0
+                            total_c2 = 0
+                            print(f"Ants: {ac}\t Gen: {ge}\t Alpha: {al}\t Beta: {be}\t Rho: {ro}\t Q: {q}\t Strat: {st}")
                             for i in range(iterations):
                                 c_1, sc_1 = solve_tsp_by_aco(file_1, sol_1, ac, ge, al, be, ro, q, st)
                                 c_2, sc_2 = solve_tsp_by_aco(file_2, sol_2, ac, ge, al, be, ro, q, st)
@@ -143,10 +145,18 @@ for ac in ant_cnt:
                             avg_c1 = total_c1 / iterations
                             avg_c2 = total_c2 / iterations
 
+                            print(f"Ants: {ac}\t Gen: {ge}\t Alpha: {al}\t Beta: {be}\t Rho: {ro}\t Q: {q}\t Strat: {st}")
+
                             print('Opt: {} \tpath: {}'.format(sol_cost_1, solution_1))
                             print('Avg: {}'.format(avg_c1))
 
+                            print('Opt: {} \tpath: {}'.format(sol_cost_2, solution_2))
+                            print('Avg: {}'.format(avg_c2))
+
                             results.append((ac, ge, al, be, ro, q, st, avg_c1, sc_1, avg_c2, sc_2))
+
+                        res = np.array(results)
+                        np.savetxt("temp.tsv", res, delimiter="\t", fmt="%s")
 
 
 res = np.array(results)

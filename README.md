@@ -12,6 +12,14 @@ Input data optimal path: [bays29.opt.tour](lab1_ACO/source_data/bays29.opt.tour)
 
 **Columns**: ants count, generations, alpha, beta, rho, qs, strategy, ending with pairs of found path length and optimal path length
 
+Bays29 solution example, optimal in yellow and found in red
+
+![bays29](lab1_ACO/bays.png)
+
+Berlin52 solution example, optimal in yellow and found in red
+
+![berlin52](lab1_ACO/berlin.png)
+
 ### Assignment 2 - PSO solving ACO solving TSP
 
 Particle Swarm foundation: https://github.com/Lars-Moellerherm/PSO.git

@@ -4,6 +4,19 @@ import random
 import numpy as np
 import copy
 import time
+from objective import *
+import random
+from random import uniform
+from concurrent.futures import ProcessPoolExecutor
+import multiprocessing as mp
+
+from particle import particle_single
+from objective import Environment
+
+from lab1_ACO.aco import ACO, Graph
+
+from pathos.multiprocessing import ProcessPool as Pool
+
 
 
 class pso:
@@ -22,6 +35,7 @@ class pso:
     '''
     
     def __init__(self,att,l_b,u_b,obj_func,constraints=[],c=2.1304,s=1.0575,w=0.4091,pop=156,vm=np.nan,integer=False):
+        print(f"Initializing PSO with {pop} particles")
         if np.isnan(vm):
             vm = np.array([u_b[i]-l_b[i] for i in range(att)])
         if type(vm) != np.ndarray and type(vm) != list:
@@ -37,11 +51,34 @@ class pso:
         self.u_bound = u_b
         self.integer = integer
         self.vmax = vm
+
+        def initialize_particle(args):
+            obj_func, att, constraints, vm, l_b, u_b, integer = args
+            return particle_single(obj_func, att, constraints, vm, l_b, u_b, integer)
+
         if type(obj_func)!=list:
             self.multi = False
-            self.swarm = [particle_single(obj_func,att,constraints,vm,l_b,u_b,integer) for i in range(pop)]
+
+            # Parallel initialization of particles
+            args_list = [(obj_func, att, constraints, vm, l_b, u_b, integer) for _ in range(pop)]
+            with Pool(ncpus=mp.cpu_count()) as pool:
+                swarm = pool.map(initialize_particle, args_list)
+                # while not swarm.ready():
+                #     time.sleep(5);
+                #     print(".", end=' ')
+                #
+                # swarm = swarm.get()
+
+            self.swarm = swarm
+
+            # self.swarm = [particle_single(obj_func,att,constraints,vm,l_b,u_b,integer) for i in range(pop)]
         else:
             self.multi = True
+            # with ProcessPoolExecutor(max_workers=16, max_tasks_per_child=5) as executor:
+            #     self.swarm = list(executor.map(
+            #         lambda _: particle_multi(obj_func, att, constraints, vm, l_b, u_b, integer),
+            #         range(pop)
+            #     ))
             self.swarm = [particle_multi(obj_func,att,constraints,vm,l_b,u_b,integer) for i in range(pop)]
             self.comp_swarm = self.swarm
         if self.multi:
@@ -49,6 +86,8 @@ class pso:
         for part in self.swarm:
             part.init_p_best()
         self.set_g_best()
+
+        print(f"PSO initialized with {pop} particles, lowest diff from optimal solution:\t{self.g_best.get_obj_value()}")
         
     def __repr__(self):
         if self.multi:
@@ -108,28 +147,11 @@ class pso:
             if part.compare(self.g_best):
                 self.g_best = copy.deepcopy(part)
         
-    def plot(self, best_p=True, x_coord=0, y_coord=1):
-        '''
-        best_p = True or False -> want to plot the personal best or the actual position of all particles
-        x_coord = 0,1,... -> for single: which position variable should be plotted ; for multi: which objective value should be plotted on the y axis
-        y_coord = 0,1,... -> for single: not relevant ; for multi: which objective value should be plottet on the y axis
-        '''
-        for partic in self.swarm:
-            partic.plot(best_p,x_coord,y_coord)
-        if self.multi:
-            plt.xlabel(r'$f_%2i(x_1,x_2,\dots)$' % x_coord)
-            plt.ylabel(r'$f_%2i(x_1,x_2,\dots)$' % y_coord)
-            plt.title('Pareto Front')
-        else:
-            plt.xlabel(r'$x_%2i$' % x_coord)
-            plt.ylabel(r'$f(x_1,x_2,\dots)$')
-            plt.title('objective value against one attribute')
-        plt.show()
-     
-        
     def moving(self,steps, time_termination):
         t0 = time.time()
         for i in range(steps):
+            print(f"\tStep {i+1}/{steps}")
+            print(f"\tBest solution error: {self.g_best.get_obj_value()}")
             if time_termination != -1 and time.time()-t0 > time_termination:
                 break
             if self.multi:
@@ -184,8 +206,7 @@ class pso:
                     self.g_best = copy.deepcopy(part)
                 #update p_best
                 part.compare_p_best()
-                
-                
+
     def get_solution(self,whole_particle=False):
         solution = []
         if self.multi:

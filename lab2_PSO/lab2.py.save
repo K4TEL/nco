@@ -13,7 +13,7 @@ strateg = [2, 1, 0]  # ACO strategy
 # qs = [3, 5, 7, 10, 15]  # pheromone intensity
 # ant_cnt = [10, 25, 50, 75]  # ants number
 
-population = 15  # sworm size
+population = 32  # sworm size
 iterations = 25  # moving steps
 N_att = 5  # optimized variables number
 

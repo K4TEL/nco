@@ -1,6 +1,7 @@
-import random
-import matplotlib.pyplot as plt
 import numpy as np
+import random
+
+num_dimensions = 5
 
 
 class particle_single():
@@ -32,14 +33,18 @@ class particle_single():
                         else:
                             init_pos.append(random.randint(l_bound[i],u_bound[i]))
                     self.position = np.array(init_pos)
+                    # print(self.position)
                 else:
                     if integer==False:
                         self.position= random.uniform(l_bound,u_bound)
                     else:
                         self.position= random.randint(l_bound,u_bound)
-            except:
+            except Exception as e:
                 print('We need lower and upper bound for init position')
-        
+                print(e)
+                self.position = np.array(init_pos)
+
+        # print(self.position)
         self.obj_value = self.calc_obj_value()
         if np.all(np.isnan(velocity))==False:
             self.velocity = velocity
@@ -75,23 +80,19 @@ class particle_single():
         
     def compare(self,part2):
         return self.obj_value<part2.obj_value
-        
-    def plot(self, best_p, x_coord, y_coord):
-        if best_p:
-            plt.plot(self.best_p.position[x_coord],self.best_p.obj_value,'k.')
-        else:
-            plt.plot(self.position[x_coord],self.obj_value,'k.')
-        
+
     def calc_obj_value(self):
         if not self.constraints:
             return self.obj_function(self.position)
         else:
+            # print(self.constraints)
+            # print(self.constraints[0])
+            # print(self.constraints[0](self.position))
+            # print(self.position)
             penalty = sum([con(self.position) for con in self.constraints])
             return self.obj_function(self.position) + penalty
     
-  
-    
-    
+
 class particle_multi(particle_single):
     '''
     att -> number of attributes
@@ -173,20 +174,6 @@ class particle_multi(particle_single):
     def compare(self,part2):
         return self.compare_rank_dist(self.rank,self.distance,part2.rank,part2.distance)
 
-        
-    def plot(self,best_p,x_coord,y_coord):
-        if best_p:
-            if self.best_p.rank==0:
-                plt.plot(self.best_p.obj_values[x_coord],self.best_p.obj_values[y_coord],'r*')
-            else:
-                plt.plot(self.best_p.obj_values[x_coord],self.best_p.obj_values[y_coord],'k.')
-        else:
-            if self.rank == 0:
-                plt.plot(self.obj_values[x_coord],self.obj_values[y_coord],'r*')
-            else:
-                plt.plot(self.obj_values[x_coord],self.obj_values[y_coord],'k.')
-
-        
     def compare_rank_dist(self,rank_1,distance_1,rank_2,distance_2):
         if rank_1 == rank_2:
             if distance_1 == distance_2:

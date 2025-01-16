@@ -12,15 +12,15 @@ sol_1 = "/lnet/work/people/lutsai/nco/bays29.opt.tour"
 sol_2 = "/lnet/work/people/lutsai/nco/berlin52.opt.tour"
 
 
-iterations = 10  # per setup
+iterations = 5  # per setup
 
-ant_cnt = [5, 10, 20, 50]
-gener = [50, 100, 200]
-a = [0.5, 1.0, 1.5]  # pheromone importance
-b = [5.0, 10.0, 15.0]  # heuristic info relative importance
+gener = [200, 100, 50]
+strateg = [2, 1, 0]
+a = [0.1, 0.5, 0.8, 1.0, 1.5]  # pheromone importance
+b = [2.5, 5.0, 10.0, 15.0]  # heuristic info relative importance
 r = [0.25, 0.5, 0.75]  # pheromone residual coeff
-qs = [5, 10, 15]  # pheromone intensity
-strateg = [0, 1, 2]
+qs = [3, 5, 7, 10, 15]  # pheromone intensity
+ant_cnt = [10, 25, 50, 75]  # ants number
 
 results = []
 
@@ -114,13 +114,13 @@ sol_cost_1, sol_cost_2 = 0, 0
 
 best_c1, best_c2 = 1000000, 1000000
 
-for ac in ant_cnt:
-    for ge in gener:
-        for al in a:
-            for be in b:
-                for ro in r:
-                    for q in qs:
-                        for st in strateg:
+for ge in gener:
+    for st in strateg:
+        for ac in ant_cnt:
+            for al in a:
+                for be in b:
+                    for ro in r:
+                        for q in qs:
                             total_c1 = 0
                             total_c2 = 0
                             print(f"Ants: {ac}\t Gen: {ge}\t Alpha: {al}\t Beta: {be}\t Rho: {ro}\t Q: {q}\t Strat: {st}")
@@ -155,9 +155,9 @@ for ac in ant_cnt:
 
                             results.append((ac, ge, al, be, ro, q, st, avg_c1, sc_1, avg_c2, sc_2))
 
-                        res = np.array(results)
-                        np.savetxt("temp.tsv", res, delimiter="\t", fmt="%s")
+                            res = np.array(results)
+                            np.savetxt("temp_aco.tsv", res, delimiter="\t", fmt="%s")
 
 
 res = np.array(results)
-np.savetxt("results.tsv", res, delimiter="\t", fmt="%s")
+np.savetxt("results_aco.tsv", res, delimiter="\t", fmt="%s")

@@ -101,7 +101,8 @@ class _Ant(object):
             if rand <= 0:
                 selected = i
                 break
-        self.allowed.remove(selected)
+        if selected in self.allowed:
+            self.allowed.remove(selected)
         self.tabu.append(selected)
         self.total_cost += self.graph.matrix[self.current][selected]
         self.current = selected
@@ -116,6 +117,6 @@ class _Ant(object):
                 self.pheromone_delta[i][j] = self.colony.Q
             elif self.colony.update_strategy == 2:  # ant-density system
                 # noinspection PyTypeChecker
-                self.pheromone_delta[i][j] = self.colony.Q / self.graph.matrix[i][j]
+                self.pheromone_delta[i][j] = self.colony.Q / (self.graph.matrix[i][j] + 0.00001)
             else:  # ant-cycle system
                 self.pheromone_delta[i][j] = self.colony.Q / self.total_cost

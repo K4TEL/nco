@@ -26,3 +26,23 @@ Particle Swarm foundation: https://github.com/Lars-Moellerherm/PSO.git
 
 **Results**: [results.tsv](lab2_PSO/results.tsv) and [temp_15_pso.tsv](lab2_PSO/temp_15_pso.tsv)
 
+Added multiprocessing to the PSO particle initialization, such that one ACO is solved on one CPU. 
+Requires pathos library to be installed.
+
+### How to run
+
+Setup the virtual environment, then run
+
+```commandline
+    pip install -r requirements.txt
+```
+
+After that check input data is in place and run the following commands
+
+```commandline
+    python lab1_ACO/lab1.py
+```
+
+```commandline
+    python lab2_PSO/lab2.py
+```
